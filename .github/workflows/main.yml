@@ -1,0 +1,38 @@
+name: Generate Laravel Vendor Zip
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.1'
+          tools: composer
+
+      - name: Extract Laravel ZIP
+        run: unzip laravel-9.0.0.zip -d laravel_project
+
+      - name: Install Dependencies
+        run: |
+          cd laravel_project
+          composer install --no-dev --optimize-autoloader
+
+      - name: Zip the Vendor Folder
+        run: |
+          cd laravel_project
+          zip -r vendor.zip vendor/
+
+      - name: Save as Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: vendor-folder
+          path: laravel_project/vendor.zip
